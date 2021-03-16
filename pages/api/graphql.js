@@ -22,7 +22,7 @@ export default async function handler (req, res) {
   // make a call to your real graphql API server
   // TODO update uri for prod
   const httpLink = createHttpLink({
-    uri: 'http://localhost:4000/graphql'
+    uri: process.env.STOX_API
   })
 
   const authLink = setContext((_, { headers }) => {
@@ -40,17 +40,16 @@ export default async function handler (req, res) {
   })
 
   const body = (req.body.query) ? req.body.query : JSON.parse(req.body).query
-  console.log('body = ', body)
-  //let result
 
-  console.log('here 1')
-  const result = await clientTrades.query({
-    query: gql`${body}`
-  })
-  console.log('here 2')
-
-  //console.log('jwt token error:', e)
-  //res.status(401)
+  let result
+  try {
+    result = await clientTrades.query({
+      query: gql`${body}`
+    })
+  } catch (e) {
+    console.log('jwt token error:', e)
+    res.status(401)
+  }
 
   if (!result) return null
 
