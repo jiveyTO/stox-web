@@ -1,0 +1,16 @@
+[
+  {
+    "trader": "@jiveyTO",
+    "action": "STO",
+    "quantity": 2,
+    "ticker": "TSLA",
+    "expiry": "Mar 5",
+    "strike": 400,
+    "type": "Call",
+    "price": 1.0,
+    "returnPercent": 88,
+    "returnDollar": 300,
+    "closedAmt": 0,
+    "expiredAmt": 0
+  }
+]
