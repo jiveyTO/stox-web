@@ -5,9 +5,12 @@ import { verify } from 'jsonwebtoken'
 export default async function handler (req, res) {
   // first check that the jwt is good
   let authenticated = false
+  let cookieToken
   try {
     const secret = process.env.SECRET
-    const tokenPayload = await verify(req.cookies['next-auth.session-token'], secret)
+
+    cookieToken = req.cookies['__Secure-next-auth.session-token'] || req.cookies['next-auth.session-token']
+    const tokenPayload = await verify(cookieToken, secret)
 
     if (tokenPayload.name) {
       authenticated = true
@@ -29,7 +32,7 @@ export default async function handler (req, res) {
     return {
       headers: {
         ...headers,
-        Authorization: req.cookies['next-auth.session-token'] ? `${req.cookies['next-auth.session-token']}` : ''
+        Authorization: cookieToken ? `${cookieToken}` : ''
       }
     }
   })
