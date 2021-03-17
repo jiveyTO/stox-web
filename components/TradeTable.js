@@ -1,24 +1,33 @@
 import { useMemo } from 'react'
-import { useTable, useSortBy } from 'react-table'
+import { useTable, useSortBy, useFilters } from 'react-table'
 import { columnsDef } from './tradeTableCols'
+import { ColumnFilter } from './ColumnFilter'
 import mock_data from './tradeTableMockData.json'
 import styles from '../styles/TradeTable.module.css'
 
 const TradeTable = ({ trades }) => {
   const columns = useMemo(() => columnsDef, [])
-  const data = useMemo(() => {
-    console.log('recalculating trades in useMemo ...', trades)
-    return trades
-  },
-  [trades]
+  const data = useMemo(
+    () => {
+      console.log('recalculating trades in useMemo ...', trades)
+      return trades
+    },
+    [trades]
   )
+
+  const defaultColumn = useMemo(() => {
+    return {
+      Filter: ColumnFilter
+    }
+  }, [])
 
   const tableInst = useTable({
     columns: columns,
-    data: data
-  }, useSortBy)
+    data: data,
+    defaultColumn
+  }, useFilters, useSortBy)
 
-  const { 
+  const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
@@ -39,6 +48,7 @@ const TradeTable = ({ trades }) => {
                     <span>
                       { column.isSorted ? (column.isSortedDesc ? '⬇' : '⬆') : '' }
                     </span>
+                    <div>{ column.canFilter ? column.render('Filter') : null }</div>
                   </th>
                 ))
               }

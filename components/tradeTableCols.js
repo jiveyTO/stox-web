@@ -1,3 +1,4 @@
+
 export const columnsDef = [
   {
     Header: 'Trader',
@@ -9,7 +10,8 @@ export const columnsDef = [
   },
   {
     Header: 'Quantity',
-    accessor: 'quantity'
+    accessor: 'quantity',
+    disableFilters: true
   },
   {
     Header: 'Ticker',
@@ -19,7 +21,9 @@ export const columnsDef = [
     Header: 'Expiry',
     accessor: 'expiry',
     Cell: (props) => {
-      return props.row.original.expiryStr }
+      return props.row.original.expiryStr
+    },
+    disableFilters: true
   },
   {
     Header: 'Strike',
@@ -31,22 +35,27 @@ export const columnsDef = [
   },
   {
     Header: 'Price',
-    accessor: 'price'
+    accessor: 'price',
+    disableFilters: true
   },
   {
     Header: '% Return',
-    accessor: 'returnPercent'
+    accessor: 'returnPercent',
+    disableFilters: true
   },
   {
     Header: '$ Return',
-    accessor: 'returnDollar'
+    accessor: 'returnDollar',
+    disableFilters: true
   },
   {
     Header: 'Closed Amt',
-    accessor: 'closedAmt'
+    accessor: 'closedAmt',
+    disableFilters: true
   },
   {
     Header: 'Expired Amt',
-    accessor: 'expiredAmt'
+    accessor: 'expiredAmt',
+    disableFilters: true
   }
 ]
