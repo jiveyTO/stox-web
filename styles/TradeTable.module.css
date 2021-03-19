@@ -25,3 +25,11 @@
   background-color: #4caf50;
   color: white;
 }
+
+.sort-icon {
+  padding-left: 5px;
+}
+
+.trade-table input {
+  width: 70%;
+}

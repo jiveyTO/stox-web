@@ -2,8 +2,26 @@ import { useMemo } from 'react'
 import { useTable, useSortBy, useFilters } from 'react-table'
 import { columnsDef } from './tradeTableCols'
 import { ColumnFilter } from './ColumnFilter'
+import SummaryTable from './SummaryTable'
 import mock_data from './tradeTableMockData.json'
+import Image from 'next/image'
 import styles from '../styles/TradeTable.module.css'
+
+const ColumnHeaderTH = ({ column, index }) => {
+  const headerProps = column.getHeaderProps()
+
+  return (
+    <th {...headerProps}>
+      {column.render('Header')}
+      <div>
+        { column.canFilter ? column.render('Filter') : null }
+        <span {...column.getSortByToggleProps()} className={styles.['sort-icon']}>
+          { column.isSorted ? (column.isSortedDesc ? '⬇' : '⬆') : <Image src='/sort.png' width={10} height={10} /> }
+        </span>
+      </div>
+    </th>
+  )
+}
 
 const TradeTable = ({ trades }) => {
   const columns = useMemo(() => columnsDef, [])
@@ -35,21 +53,25 @@ const TradeTable = ({ trades }) => {
     prepareRow
   } = tableInst
 
+  const traderReturns = {}
+  rows.map(row => {
+    prepareRow(row)
+    const trader = row.values.trader
+    traderReturns[trader] ||= 0
+    traderReturns[trader] += row.values.returnDollar 
+  })
+
   return (
+  <>
+    <SummaryTable data={traderReturns} /><br></br>
     <table {...getTableProps} className={styles['trade-table']} >
       <thead>
         {
-          headerGroups.map(headerGroup => (
+          headerGroups.map((headerGroup, index) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {
                 headerGroup.headers.map(column => (
-                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render('Header')}
-                    <span>
-                      { column.isSorted ? (column.isSortedDesc ? '⬇' : '⬆') : '' }
-                    </span>
-                    <div>{ column.canFilter ? column.render('Filter') : null }</div>
-                  </th>
+                  <ColumnHeaderTH column={column} index={index} />
                 ))
               }
             </tr>            
@@ -75,6 +97,7 @@ const TradeTable = ({ trades }) => {
         }
       </tbody>
     </table>
+  </>
   )
 }
 

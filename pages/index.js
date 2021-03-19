@@ -26,14 +26,12 @@ const TRADES_QUERY = gql`
 }`
 
 const fetcher = async (url, QUERY) => {
-  console.log('my fetch here = ', url)
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'applicaiton/json' },
     body: JSON.stringify({ query: QUERY.loc.source.body })
   })
   const data = await res.json()
-  console.log('my data here = ', data)
 
   return data
 }
@@ -42,7 +40,6 @@ const useTrades = () => {
   const { data, error } = useSWR(['/api/graphql', TRADES_QUERY], fetcher, { dedupingInterval: 300000 })
 
   let returnData = []
-  console.log('useTrades data = ', data)
   if (data) returnData = data.data.trades
 
   return {
@@ -69,9 +66,6 @@ const TradesSummary = () => {
 
 const Trades = () => {
   const { trades, isLoading, isError } = useTrades()
-  console.log('<Trades> trades = ', trades)
-  console.log('<Trades> isLoading = ', isLoading)
-  console.log('<Trades> isError = ', isError)
 
   return (
     <>
@@ -83,15 +77,12 @@ const Trades = () => {
 export default function Home ({ launches }) {
   const [session, loading] = useSession()
 
-  console.log('loading...', loading)
-  console.log('session A', session)
-
   if (!session) {
     return (
-      <>
-        Not signed in <br/>
+      <div className={styles['container']}>
+        <h1>Not signed in</h1>
         <button onClick={() => signIn()}>Sign in</button>
-      </>
+      </div>
     )
   }
 
