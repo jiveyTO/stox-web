@@ -53,17 +53,31 @@ const TradeTable = ({ trades }) => {
     prepareRow
   } = tableInst
 
+  const summaryData = {}
   const traderReturns = {}
+  const tickerReturns = {}
+
   rows.map(row => {
     prepareRow(row)
     const trader = row.values.trader
     traderReturns[trader] ||= 0
     traderReturns[trader] += row.values.returnDollar 
   })
+  summaryData.traderReturns = traderReturns
+
+  if (Object.keys(traderReturns).length === 1) {
+    rows.map(row => {
+      prepareRow(row)
+      const ticker = row.values.ticker
+      tickerReturns[ticker] ||= 0
+      tickerReturns[ticker] += row.values.returnDollar
+    })
+  }
+  summaryData.tickerReturns = tickerReturns
 
   return (
   <>
-    <SummaryTable data={traderReturns} /><br></br>
+    <SummaryTable {...summaryData} /><br></br>
     <table {...getTableProps} className={styles['trade-table']} >
       <thead>
         {

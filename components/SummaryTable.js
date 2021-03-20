@@ -1,7 +1,14 @@
 import styles from '../styles/TradeTable.module.css'
 
-const SummaryTable = ({ data }) => {
-  const dataArray = Object.entries(data)
+const SummaryTable = ({ traderReturns, tickerReturns }) => {
+  const dataArray = Object.entries(traderReturns)
+  let boldUserRow = false
+
+  if (Object.keys(tickerReturns).length > 0) {
+    const tickerArray = Object.entries(tickerReturns)
+    dataArray.push(...tickerArray)
+    boldUserRow = true
+  }
   dataArray.unshift(['Trader', '$ Return'])
 
   return (
@@ -22,7 +29,9 @@ const SummaryTable = ({ data }) => {
           <tr>
             {
               row.map(cell => (
-                <td>{cell}</td>
+                <td style={{ fontWeight: i===1 && boldUserRow ? 'bold' : 'normal' }}>
+                  {cell}
+                </td>
               ))
             }
           </tr>

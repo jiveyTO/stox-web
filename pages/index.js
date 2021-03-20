@@ -3,6 +3,9 @@ import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import { signIn, signOut, useSession } from 'next-auth/client'
 import useSWR from 'swr'
 import TradeTable from '../components/TradeTable'
+
+import '@shopify/polaris/dist/styles.css'
+import { Page, DisplayText, Card, Button } from '@shopify/polaris'
 import styles from '../styles/Home.module.css'
 
 const TRADES_QUERY = gql`
@@ -50,26 +53,11 @@ const useTrades = () => {
 }
 
 const TradesBlock = () => {
-  return (
-    <>
-    <TradesSummary></TradesSummary>
-    <Trades></Trades>
-    </>
-  )
-}
-
-const TradesSummary = () => {
-  return (
-    <></>
-  )
-}
-
-const Trades = () => {
   const { trades, isLoading, isError } = useTrades()
 
   return (
     <>
-      <TradeTable trades={trades} />
+    <TradeTable trades={trades} />
     </>
   )
 }
@@ -89,16 +77,17 @@ export default function Home ({ launches }) {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>Stox</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <Page>
       <main className={styles.main}>
         Signed in as {session.user.email} <br/>
         <button onClick={() => signOut()}>Sign out</button>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Stox!</a>
-        </h1>
+          <DisplayText size="extraLarge" element="h1">
+            Welcome to <a href="https://finance.yahoo.com"><span style={{ color: '#0070f3' }}>Stox!</span></a>
+          </DisplayText>
 
         <TradesBlock></TradesBlock>
 
@@ -113,6 +102,7 @@ export default function Home ({ launches }) {
 
         </div>
       </main>
+      </Page>
 
       <footer className={styles.footer}>
         <a
