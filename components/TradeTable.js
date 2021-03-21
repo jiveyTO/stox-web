@@ -53,24 +53,40 @@ const TradeTable = ({ trades }) => {
     prepareRow
   } = tableInst
 
+  const returnUpdate = (obj, row, type) => {
+    // guard clause to ignore BTO or STO trades that have been subsequently closed
+    if (row.values?.returnDollar === null || row.values?.returnPercent === null) return
+
+    const t = row.values[type]
+    obj[t] ||= {}
+
+    obj[t].returnDollar ||= 0
+    obj[t].returnDollar += row.values.returnDollar 
+
+    obj[t].win ||= 0
+    obj[t].count ||= 0
+    obj[t].count++
+    if (row.values.returnDollar > 0) obj[t].win++
+
+    obj[t].totalPercentReturn ||= 0
+    obj[t].totalPercentReturn += row.values.returnPercent
+  }
+
   const summaryData = {}
   const traderReturns = {}
-  const tickerReturns = {}
 
+  // tally up the metrics for each trader
   rows.map(row => {
     prepareRow(row)
-    const trader = row.values.trader
-    traderReturns[trader] ||= 0
-    traderReturns[trader] += row.values.returnDollar 
+    returnUpdate(traderReturns, row, 'trader')
   })
   summaryData.traderReturns = traderReturns
 
+  const tickerReturns = {}
   if (Object.keys(traderReturns).length === 1) {
     rows.map(row => {
       prepareRow(row)
-      const ticker = row.values.ticker
-      tickerReturns[ticker] ||= 0
-      tickerReturns[ticker] += row.values.returnDollar
+      returnUpdate(tickerReturns, row, 'ticker')
     })
   }
   summaryData.tickerReturns = tickerReturns

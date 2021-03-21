@@ -1,5 +1,30 @@
 import styles from '../styles/TradeTable.module.css'
 
+const SummaryTableRow = ({row, headers}) => {
+  const trader = row[0]
+  const statsObj = row[1]
+
+  const metricArray = []
+  headers.map(metric => {
+    if (metric === '$ Return') 
+      metricArray.push(statsObj.returnDollar)
+    else if (metric === 'Wins / Total / %')
+      metricArray.push(`${statsObj.win} / ${statsObj.count} / ${Math.round(statsObj.win / statsObj.count * 100)}%`)
+    else if (metric === 'Avg Return Per Trade')
+      metricArray.push(Math.round(statsObj.totalPercentReturn/statsObj.count) + '%')
+  })
+
+  return (
+    <>
+    {
+      metricArray.map(value => (
+        <td style={{textAlign: 'center'}}>{value}</td>
+      ))
+    }
+    </>
+  )
+}
+
 const SummaryTable = ({ traderReturns, tickerReturns }) => {
   const dataArray = Object.entries(traderReturns)
   let boldUserRow = false
@@ -9,7 +34,9 @@ const SummaryTable = ({ traderReturns, tickerReturns }) => {
     dataArray.push(...tickerArray)
     boldUserRow = true
   }
-  dataArray.unshift(['Trader', '$ Return'])
+
+  const headers = ['Trader', '$ Return', 'Wins / Total / %', 'Avg Return Per Trade']
+  dataArray.unshift(headers)
 
   return (
     <table className={styles['trade-table']}>
@@ -26,12 +53,17 @@ const SummaryTable = ({ traderReturns, tickerReturns }) => {
             </tr>
           </thead>
             :
-          <tr>
+          <tr style={{ fontWeight: i===1 && boldUserRow ? 'bold' : 'normal' }}>
             {
-              row.map(cell => (
-                <td style={{ fontWeight: i===1 && boldUserRow ? 'bold' : 'normal' }}>
+              row.map((cell, j) => (
+                (j === 0) ?
+                <td>
                   {cell}
                 </td>
+                :
+                <>
+                  <SummaryTableRow row={row} headers={headers.slice(1)} />
+                </>
               ))
             }
           </tr>
