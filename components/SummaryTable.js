@@ -54,7 +54,7 @@ const SummaryTable = ({ traderReturns, tickerReturns }) => {
         {
 
         dataArray.slice(1).map((row, i) => (
-          <tr style={{ fontWeight: i === 1 && boldUserRow ? 'bold' : 'normal' }} key={i + 'sumBodyRow'}>
+          <tr style={{ fontWeight: i === 0 && boldUserRow ? 'bold' : 'normal' }} key={i + 'sumBodyRow'}>
             {
               <>
                 <td key={'sumBodyCell' + i}>
