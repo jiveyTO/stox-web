@@ -11,7 +11,7 @@ const ColumnHeaderTH = ({ column, index }) => {
   const headerProps = column.getHeaderProps()
 
   return (
-    <th {...headerProps}>
+    <th {...headerProps} key={index+'ColHeadTH'}>
       {column.render('Header')}
       <div>
         { column.canFilter ? column.render('Filter') : null }
@@ -24,6 +24,7 @@ const ColumnHeaderTH = ({ column, index }) => {
 }
 
 const TradeTable = ({ trades }) => {
+  // setup the table
   const columns = useMemo(() => columnsDef, [])
   const data = useMemo(
     () => {
@@ -53,6 +54,20 @@ const TradeTable = ({ trades }) => {
     prepareRow
   } = tableInst
 
+  //style the table
+  const getRowProps = (row, r) => {
+    const ret = row.values?.returnDollar
+    const closed = row.values?.quantity === row.values?.closedAmt
+    
+    return ({
+      style: {
+        color: ret > 0 ? 'green' : ret === 0 ? 'black' : closed ? 'grey' : 'red'
+      },
+      key: r
+    })
+  }
+
+  // setup the summary table
   const returnUpdate = (obj, row, type) => {
     // guard clause to ignore BTO or STO trades that have been subsequently closed
     if (row.values?.returnDollar === null || row.values?.returnPercent === null) return
@@ -82,6 +97,7 @@ const TradeTable = ({ trades }) => {
   })
   summaryData.traderReturns = traderReturns
 
+  // when just one trader is filtered then display their ticker breakdown too
   const tickerReturns = {}
   if (Object.keys(traderReturns).length === 1) {
     rows.map(row => {
@@ -91,17 +107,18 @@ const TradeTable = ({ trades }) => {
   }
   summaryData.tickerReturns = tickerReturns
 
+  // display the summary table and the data table
   return (
   <>
     <SummaryTable {...summaryData} /><br></br>
-    <table {...getTableProps} className={styles['trade-table']} >
+    <table {...getTableProps} className={styles['trade-table']}>
       <thead>
         {
-          headerGroups.map((headerGroup, index) => (
+          headerGroups.map((headerGroup, i) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {
-                headerGroup.headers.map(column => (
-                  <ColumnHeaderTH column={column} index={index} />
+                headerGroup.headers.map((column, j) => (
+                  <ColumnHeaderTH column={column} index={j+'B'} key={j+'B'} />
                 ))
               }
             </tr>            
@@ -110,10 +127,10 @@ const TradeTable = ({ trades }) => {
       </thead>
       <tbody {...getTableBodyProps}>
         {
-          rows.map(row => {
+          rows.map((row, r) => {
             prepareRow(row)
             return (
-              <tr {...row.getRowProps()}>
+              <tr {...row.getRowProps(getRowProps(row, r))} >
                 {
                   row.cells.map(cell => (
                     <td {...cell.getCellProps()}>
