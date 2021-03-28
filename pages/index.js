@@ -21,6 +21,7 @@ const TRADES_QUERY = gql`
     strike
     type
     price
+    principal
     returnPercent
     returnDollar
     closedAmt

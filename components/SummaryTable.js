@@ -5,12 +5,12 @@ const SummaryTableRow = ({ row, headers, index }) => {
 
   const metricArray = []
   headers.map(metric => {
-    if (metric === '$ Return') 
+    if (metric === '% Return')
+      metricArray.push(`${Math.round(statsObj.returnDollar / statsObj.principal * 100)}%`)
+    else if (metric === '$ Return')
       metricArray.push(statsObj.returnDollar)
     else if (metric === 'Wins / Total / %')
       metricArray.push(`${statsObj.win} / ${statsObj.count} / ${Math.round(statsObj.win / statsObj.count * 100)}%`)
-    else if (metric === 'Avg Return Per Trade')
-      metricArray.push(Math.round(statsObj.totalPercentReturn/statsObj.count) + '%')
 
     return null
   })
@@ -36,7 +36,7 @@ const SummaryTable = ({ traderReturns, tickerReturns }) => {
     boldUserRow = true
   }
 
-  const headers = ['Trader', '$ Return', 'Wins / Total / %', 'Avg Return Per Trade']
+  const headers = ['Trader', '% Return', '$ Return', 'Wins / Total / %']
   dataArray.unshift(headers)
 
   return (

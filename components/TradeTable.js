@@ -77,6 +77,9 @@ const TradeTable = ({ trades }) => {
 
     obj[t].returnDollar ||= 0
     obj[t].returnDollar += row.values.returnDollar 
+    
+    obj[t].principal ||= 0
+    obj[t].principal += row.original.principal
 
     obj[t].win ||= 0
     obj[t].count ||= 0
