@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
-import { signIn, signOut, useSession } from 'next-auth/client'
+import { signIn, useSession } from 'next-auth/client'
 import useSWR from 'swr'
 import TradeTable from '../components/TradeTable'
 
@@ -84,8 +84,6 @@ export default function Home ({ launches }) {
 
       <Page>
       <main className={styles.main}>
-        Signed in as {session.user.email} <br/>
-        <button onClick={() => signOut()}>Sign out</button>
           <DisplayText size="extraLarge" element="h1">
             Welcome to <a href="https://finance.yahoo.com"><span style={{ color: '#0070f3' }}>Stox!</span></a>
           </DisplayText>

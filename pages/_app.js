@@ -1,16 +1,14 @@
 import '../styles/globals.css'
 import { Provider } from 'next-auth/client'
-
-import enTranslations from '@shopify/polaris/locales/en.json'
-import { AppProvider } from '@shopify/polaris'
+import StoxLayout from '../components/StoxLayout'
 
 function MyApp ({ Component, pageProps }) {
   return (
-    <AppProvider i18n={enTranslations}>
-      <Provider session={pageProps.session}>
+    <Provider session={pageProps.session}>
+      <StoxLayout>
         <Component {...pageProps} />
-      </Provider>
-    </AppProvider>
+      </StoxLayout>
+    </Provider>
   )
 }
 
