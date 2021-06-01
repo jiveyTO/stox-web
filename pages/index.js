@@ -1,8 +1,11 @@
 import Head from 'next/head'
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
-import { signIn, signOut, useSession } from 'next-auth/client'
+import { signIn, useSession } from 'next-auth/client'
 import useSWR from 'swr'
 import TradeTable from '../components/TradeTable'
+
+import '@shopify/polaris/dist/styles.css'
+import { Page, DisplayText, Card, Button } from '@shopify/polaris'
 import styles from '../styles/Home.module.css'
 
 const TRADES_QUERY = gql`
@@ -18,6 +21,7 @@ const TRADES_QUERY = gql`
     strike
     type
     price
+    principal
     returnPercent
     returnDollar
     closedAmt
@@ -26,14 +30,12 @@ const TRADES_QUERY = gql`
 }`
 
 const fetcher = async (url, QUERY) => {
-  console.log('my fetch here = ', url)
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'applicaiton/json' },
     body: JSON.stringify({ query: QUERY.loc.source.body })
   })
   const data = await res.json()
-  console.log('my data here = ', data)
 
   return data
 }
@@ -42,7 +44,6 @@ const useTrades = () => {
   const { data, error } = useSWR(['/api/graphql', TRADES_QUERY], fetcher, { dedupingInterval: 300000 })
 
   let returnData = []
-  console.log('useTrades data = ', data)
   if (data) returnData = data.data.trades
 
   return {
@@ -53,29 +54,11 @@ const useTrades = () => {
 }
 
 const TradesBlock = () => {
-  return (
-    <>
-    <TradesSummary></TradesSummary>
-    <Trades></Trades>
-    </>
-  )
-}
-
-const TradesSummary = () => {
-  return (
-    <></>
-  )
-}
-
-const Trades = () => {
   const { trades, isLoading, isError } = useTrades()
-  console.log('<Trades> trades = ', trades)
-  console.log('<Trades> isLoading = ', isLoading)
-  console.log('<Trades> isError = ', isError)
 
   return (
     <>
-      <TradeTable trades={trades} />
+    <TradeTable trades={trades} />
     </>
   )
 }
@@ -83,31 +66,27 @@ const Trades = () => {
 export default function Home ({ launches }) {
   const [session, loading] = useSession()
 
-  console.log('loading...', loading)
-  console.log('session A', session)
-
   if (!session) {
     return (
-      <>
-        Not signed in <br/>
+      <div className={styles['container']}>
+        <h1>Not signed in</h1>
         <button onClick={() => signIn()}>Sign in</button>
-      </>
+      </div>
     )
   }
 
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>Stox</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <Page>
       <main className={styles.main}>
-        Signed in as {session.user.email} <br/>
-        <button onClick={() => signOut()}>Sign out</button>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Stox!</a>
-        </h1>
+          <DisplayText size="extraLarge" element="h1">
+            Welcome to <a href="https://finance.yahoo.com"><span style={{ color: '#0070f3' }}>Stox!</span></a>
+          </DisplayText>
 
         <TradesBlock></TradesBlock>
 
@@ -122,6 +101,7 @@ export default function Home ({ launches }) {
 
         </div>
       </main>
+      </Page>
 
       <footer className={styles.footer}>
         <a

@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.11",
+    "@shopify/polaris": "^6.2.0",
+    "@shopify/polaris-icons": "^4.5.0",
     "graphql": "^15.5.0",
     "jsonwebtoken": "^8.5.1",
     "next": "10.0.7",
