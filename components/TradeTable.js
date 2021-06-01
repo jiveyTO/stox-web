@@ -1,11 +1,12 @@
-import { useMemo } from 'react'
-import { useTable, useSortBy, useFilters } from 'react-table'
+import { useState, useMemo, useCallback } from 'react'
+import { useTable, useSortBy, useFilters, useGlobalFilter } from 'react-table'
 import { columnsDef } from './tradeTableCols'
 import { ColumnFilter } from './ColumnFilter'
 import SummaryTable from './SummaryTable'
 import mock_data from './tradeTableMockData.json'
 import Image from 'next/image'
 import styles from '../styles/TradeTable.module.css'
+import { Select } from '@shopify/polaris'
 
 const ColumnHeaderTH = ({ column, index }) => {
   const headerProps = column.getHeaderProps()
@@ -22,6 +23,53 @@ const ColumnHeaderTH = ({ column, index }) => {
     </th>
   )
 }
+
+// ------------------------------
+// start: setup status filter
+// ------------------------------
+const StatusFilter = ({ setFilter }) => {
+  const [selected, setSelected] = useState('all')
+
+  const handleSelectChange = useCallback(
+    value => {
+      setFilter(value)
+      setSelected(value)
+    }, [])
+
+  const options = [
+    {label: 'All', value: 'all'},
+    {label: 'Open', value: 'open'},
+    {label: 'Closed', value: 'closed'},
+    {label: 'Expired', value: 'expired'}
+  ]
+
+  return (
+    <div className={styles['status-filter']}>
+      <Select
+        label="Status"
+        options={options}
+        onChange={handleSelectChange}
+        value={selected}
+        labelInline={true}
+      />
+    </div>
+  )
+}
+
+const statusFilterFunction = (rows, ids, query) => {
+  return rows.filter(
+    row => {
+      if (query === 'all') return true
+      else if (query === 'open') return (row.values.expiredAmt === 0 && row.values.closedAmt !== row.values.quantity)
+      else if (query === 'closed') return (row.values.action === 'STC' || row.values.action === 'BTC' || row.values.expiredAmt > 0)
+      else if (query === 'expired') return (row.values.expiredAmt > 0)
+    }
+  )
+}
+
+// ------------------------------
+// end: setup status filter
+// ------------------------------
 
 const TradeTable = ({ trades }) => {
   // setup the table
@@ -43,15 +91,17 @@ const TradeTable = ({ trades }) => {
   const tableInst = useTable({
     columns: columns,
     data: data,
-    defaultColumn
-  }, useFilters, useSortBy)
+    defaultColumn,
+    globalFilter: statusFilterFunction
+  }, useGlobalFilter, useFilters, useSortBy)
 
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
     rows,
-    prepareRow
+    prepareRow,
+    setGlobalFilter
   } = tableInst
 
   //style the table
@@ -67,6 +117,9 @@ const TradeTable = ({ trades }) => {
     })
   }
 
+  // ------------------------------
+  // start: setup the summary table
+  // ------------------------------
   // setup the summary table
   const returnUpdate = (obj, row, type) => {
     // guard clause to ignore BTO or STO trades that have been subsequently closed
@@ -90,7 +143,10 @@ const TradeTable = ({ trades }) => {
     obj[t].totalPercentReturn += row.values.returnPercent
   }
 
-  const summaryData = {}
+  const summaryData = {
+    traderReturns: null,
+    tickerReturns: null
+  }
   const traderReturns = {}
 
   // tally up the metrics for each trader
@@ -109,11 +165,15 @@ const TradeTable = ({ trades }) => {
     })
   }
   summaryData.tickerReturns = tickerReturns
+  // ------------------------------
+  // end: setup the summary table
+  // ------------------------------
 
   // display the summary table and the data table
   return (
   <>
     <SummaryTable {...summaryData} /><br></br>
+    <StatusFilter setFilter={setGlobalFilter}></StatusFilter>
     <table {...getTableProps} className={styles['trade-table']}>
       <thead>
         {
