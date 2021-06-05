@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useAsyncDebounce } from 'react-table'
 
-export const ColumnFilter = ({ column }) => {
+export const ColumnFilter = ({ column }: { column: any }) => {
   const { filterValue, setFilter } = column
   const [value, setValue] = useState(filterValue)
 
-  const onChange = useAsyncDebounce(value => {
+  const onChange = useAsyncDebounce((value) => {
     setFilter(value || undefined)
   }, 900)
 

@@ -1,4 +1,3 @@
-
 export const columnsDef = [
   {
     Header: 'Trader',
@@ -20,7 +19,7 @@ export const columnsDef = [
   {
     Header: 'Expiry',
     accessor: 'expiry',
-    Cell: (props) => {
+    Cell: (props: any) => {
       return props.row.original.expiryStr
     },
     disableFilters: true

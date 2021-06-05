@@ -1,18 +1,20 @@
 import { ApolloClient, InMemoryCache, createHttpLink, gql } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
-import { verify } from 'jsonwebtoken'
+import { Secret, verify } from 'jsonwebtoken'
+import { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler (req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<any> {
   // first check that the jwt is good
   let authenticated = false
-  let cookieToken
+  let cookieToken: string
   try {
-    const secret = process.env.SECRET
+    const secret: Secret = process.env.SECRET || ''
 
-    cookieToken = req.cookies['__Secure-next-auth.session-token'] || req.cookies['next-auth.session-token']
+    cookieToken =
+      req.cookies['__Secure-next-auth.session-token'] || req.cookies['next-auth.session-token']
     const tokenPayload = await verify(cookieToken, secret)
 
-    if (tokenPayload.name) {
+    if ((tokenPayload as any).name) {
       authenticated = true
     }
   } catch (e) {
@@ -42,12 +44,14 @@ export default async function handler (req, res) {
     cache: new InMemoryCache()
   })
 
-  const body = (req.body.query) ? req.body.query : JSON.parse(req.body).query
+  const body = req.body.query ? req.body.query : JSON.parse(req.body).query
 
   let result
   try {
     result = await clientTrades.query({
-      query: gql`${body}`
+      query: gql`
+        ${body}
+      `
     })
   } catch (e) {
     console.log('jwt token error:', e)
