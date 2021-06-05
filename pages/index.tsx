@@ -1,35 +1,36 @@
 import Head from 'next/head'
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
-import { signIn, useSession } from 'next-auth/client'
 import useSWR from 'swr'
 import TradeTable from '../components/TradeTable'
 
-import '@shopify/polaris/dist/styles.css'
-import { Page, DisplayText, Card, Button } from '@shopify/polaris'
+import { Page, DisplayText } from '@shopify/polaris'
 import styles from '../styles/Home.module.css'
+import { ReactElement } from 'react'
 
 const TRADES_QUERY = gql`
-{
-  trades {
-    id
-    trader
-    action
-    quantity
-    ticker
-    expiry
-    expiryStr
-    strike
-    type
-    price
-    principal
-    returnPercent
-    returnDollar
-    closedAmt
-    expiredAmt
+  {
+    trades {
+      id
+      trader
+      action
+      quantity
+      ticker
+      expiry
+      expiryStr
+      strike
+      type
+      price
+      principal
+      returnPercent
+      returnDollar
+      closedAmt
+      expiredAmt
+    }
   }
-}`
+`
 
-const fetcher = async (url, QUERY) => {
+// TODO: put this somewhere it can be resued
+const fetcher = async (url: string, QUERY: any) => {
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'applicaiton/json' },
@@ -40,8 +41,11 @@ const fetcher = async (url, QUERY) => {
   return data
 }
 
+// TODO: put this somewhere it can be resued
 const useTrades = () => {
-  const { data, error } = useSWR(['/api/graphql', TRADES_QUERY], fetcher, { dedupingInterval: 300000 })
+  const { data, error } = useSWR(['/api/graphql', TRADES_QUERY], fetcher, {
+    dedupingInterval: 300000
+  })
 
   let returnData = []
   if (data) returnData = data.data.trades
@@ -56,74 +60,71 @@ const useTrades = () => {
 const TradesBlock = () => {
   const { trades, isLoading, isError } = useTrades()
 
-  return (
-    <>
-    <TradeTable trades={trades} />
-    </>
-  )
+  return isLoading || isError ? <div></div> : <TradeTable trades={trades} />
 }
 
-export default function Home ({ launches }) {
-  const [session, loading] = useSession()
-
-  if (!session) {
-    return (
-      <div className={styles['container']}>
-        <h1>Not signed in</h1>
-        <button onClick={() => signIn()}>Sign in</button>
-      </div>
-    )
-  }
-
+export default function Home({
+  launches
+}: {
+  launches: {
+    id: number
+    links: { video_link: string }
+    mission_name: string
+    launch_date_local: Date
+  }[]
+}): ReactElement {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Stox</title>
+        <title>Stox - Trades</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Page>
-      <main className={styles.main}>
+        <main className={styles.main}>
           <DisplayText size="extraLarge" element="h1">
-            Welcome to <a href="https://finance.yahoo.com"><span style={{ color: '#0070f3' }}>Stox!</span></a>
-          </DisplayText>
-
-        <TradesBlock></TradesBlock>
-
-        <div className={styles.grid}>
-
-          { launches.map(launch => (
-            <a key={launch.id} href={launch.links.video_link} className={styles.card}>
-              <h3>{ launch.mission_name }</h3>
-              <p><strong>Launch Time:</strong>{ new Date(launch.launch_date_local).toLocaleString('en-US') }</p>
+            Welcome to{' '}
+            <a href="https://finance.yahoo.com">
+              <span style={{ color: '#0070f3' }}>Stox!</span>
             </a>
-          ))}
+          </DisplayText>
+          <TradesBlock></TradesBlock>
 
-        </div>
-      </main>
+          <div className={styles.grid}>
+            {launches.map((launch) => (
+              <a key={launch.id} href={launch.links.video_link} className={styles.card}>
+                <h3>{launch.mission_name}</h3>
+                <p>
+                  <strong>Launch Time:</strong>
+                  {new Date(launch.launch_date_local).toLocaleString('en-US')}
+                </p>
+              </a>
+            ))}
+          </div>
+        </main>
       </Page>
 
       <footer className={styles.footer}>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
           target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by Stox{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
+          rel="noopener noreferrer">
+          Powered by Stox <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
         </a>
       </footer>
     </div>
   )
 }
 
-export const getStaticProps = async (context) => {
+export const getStaticProps = async (): Promise<{ props: any }> => {
   const clientSpaceX = new ApolloClient({
     uri: 'https://api.spacex.land/graphql',
     cache: new InMemoryCache()
   })
 
-  const props = {}
+  const props = {
+    launches: null
+  }
 
   const dataSpaceX = await clientSpaceX.query({
     query: gql`

@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
 import { sign, verify } from 'jsonwebtoken'
+import { JWT, JWTDecodeParams, JWTEncodeParams } from 'next-auth/jwt'
 
 export default NextAuth({
   providers: [
@@ -15,12 +16,14 @@ export default NextAuth({
   },
   jwt: {
     secret: process.env.SECRET,
-    encode: async ({ secret, token, maxAge }) => {
-      return sign(token, secret, { algorithm: 'HS512' })
+    encode: async (params) => {
+      const { token, secret } = params as JWTEncodeParams
+      return sign(token as JWT, secret as string, { algorithm: 'HS512' })
     },
-    decode: async ({ secret, token, maxAge }) => {
-      const decodedToken = verify(token, secret, { algorithms: ['HS512'] })
-      return decodedToken
+    decode: async (params): Promise<JWT> => {
+      const { token, secret } = params as JWTDecodeParams
+      const decodedToken = verify(token as string, secret, { algorithms: ['HS512'] })
+      return decodedToken as JWT
     }
   },
   secret: process.env.SECRET,
